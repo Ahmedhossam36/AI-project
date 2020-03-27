@@ -1,0 +1,388 @@
+import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Stack;
+import java.util.List;
+
+public class Last_test_inshallah {
+
+    public static void main(String[] args) {
+        Scanner input = new Scanner(System.in);
+        int puzzle[][] = new int[3][3];
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                puzzle[i][j] = input.nextInt();
+            }
+        }
+        System.out.println("enter the seach way in capital BFS or DFS");
+        String search = input.next();
+        Node root = new Node(puzzle, null, null, null, null);
+        Tree tree = new Tree(root);
+        tree.add(root, search);
+
+    }
+
+    public static void show(int[][] grid) {
+        for (int i = 0; i < 3; i++) {
+            System.out.println();
+            for (int j = 0; j < 3; j++) {
+                System.out.print(grid[i][j] + "\t");
+            }
+        }
+    }
+
+}
+
+class Node {
+
+    int[][] data;
+    Node left;
+    Node right, up, down;
+
+    public Node(int[][] d, Node left, Node right, Node up, Node down) {
+        this.data = d;
+        this.left = left;
+        this.right = right;
+        this.up = up;
+        this.down = down;
+    }
+}
+
+class Tree {
+
+    int goal[][] = {{0, 1, 2}, {3, 4, 5}, {6, 7, 8}};
+    Node root;
+    LinkedList list = new LinkedList();
+    Queue q = new LinkedList();
+    Queue child = new LinkedList();
+    Stack<Node> dfs = new Stack();
+
+    public Tree(Node root) {
+        this.root = root;
+        list.add(root.data);
+    }
+    long starttime = System.currentTimeMillis();
+
+    public void add(Node stat, String search) {
+
+        list.add(stat.data);
+
+        if (search.equals("BFS")) {
+
+            BFS(stat);
+
+        } else if (search.equals("DFS")) {
+            long starttime = System.currentTimeMillis();
+            DFS(root);
+        } else {
+            System.out.println("wrong input ");
+        }
+
+    }
+
+    public boolean goal_reached(int[][] data) {
+        for (int i = 0, tmp = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (tmp == data[i][j]) {
+                    tmp++;
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+
+    }
+
+    public Node move_down(int[][] grid) {
+        int first = 0;
+        int sec = 0;
+        int[][] newarr = new int[3][3];
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (grid[i][j] == 0) {
+                    first = i;
+                    sec = j;
+
+                }
+                newarr[i][j] = grid[i][j];
+            }
+        }
+        lbl:
+        for (int i = 1; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (newarr[i][j] == 0) {
+                    int temp = newarr[i][j];
+                    newarr[i][j] = newarr[i - 1][j];
+                    newarr[i - 1][j] = temp;
+                    break lbl;
+                }
+            }
+        }
+        Node new_nodeDOWN = null;
+        lbl:
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (newarr[i][j] == 0 && (first != i || sec != j)) {
+                    new_nodeDOWN = new Node(newarr, null, null, null, null);
+                    if (!list.contains(new_nodeDOWN.data)) {
+                        list.add(new_nodeDOWN.data);
+                        root.down = new_nodeDOWN;
+                        print(new_nodeDOWN.data);
+                        System.out.println("down");
+
+                        if (goal_reached(new_nodeDOWN.data)) {
+                            System.out.println("goal reached ");
+                            long endtime = System.currentTimeMillis();
+                            System.out.println("time taken to reach the goal is:  " + (endtime - starttime) + "ms");
+                            System.exit(0);
+                        }
+                        child.add(new_nodeDOWN);
+                        dfs.push(new_nodeDOWN);
+                        break lbl;
+                    }
+                }
+            }
+        }
+
+        return new_nodeDOWN;
+    }
+
+    public Node move_Left(int[][] grid) {
+        int first = 0;
+        int sec = 0;
+        int[][] newarr = new int[3][3];
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (grid[i][j] == 0) {
+                    first = i;
+                    sec = j;
+
+                }
+                newarr[i][j] = grid[i][j];
+            }
+        }
+        lbl:
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 2; j++) {
+                if (newarr[i][j] == 0) {
+                    int temp = newarr[i][j];
+                    newarr[i][j] = newarr[i][j + 1];
+                    newarr[i][j + 1] = temp;
+                    break lbl;
+                }
+            }
+        }
+        Node new_nodeLEFT = null;
+        lbl:
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (newarr[i][j] == 0 && (first != i || sec != j)) {
+                    new_nodeLEFT = new Node(newarr, null, null, null, null);
+                    if (!list.contains(new_nodeLEFT.data)) {
+                        list.add(new_nodeLEFT.data);
+                        root.left = new_nodeLEFT;
+                        print(new_nodeLEFT.data);
+                        System.out.println("left");
+                    }
+
+                    if (goal_reached(new_nodeLEFT.data)) {
+                        System.out.println("goal reached");
+                        long endtime = System.currentTimeMillis();
+                        System.out.println("time taken to reach the goal is:  " + (endtime - starttime) + "ms");
+                        System.exit(0);
+                    }
+                    child.add(new_nodeLEFT);
+                    dfs.push(new_nodeLEFT);
+                    break lbl;
+                }
+            }
+        }
+
+        return new_nodeLEFT;
+    }
+
+    public Node move_Right(int[][] grid) {
+        int first = 0;
+        int sec = 0;
+        int[][] newarr = new int[3][3];
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (grid[i][j] == 0) {
+                    first = i;
+                    sec = j;
+
+                }
+                newarr[i][j] = grid[i][j];
+            }
+        }
+        lbl:
+        for (int i = 0; i < 3; i++) {
+            for (int j = 1; j < 3; j++) {
+                if (newarr[i][j] == 0) {
+                    int temp = newarr[i][j];
+                    newarr[i][j] = newarr[i][j - 1];
+                    newarr[i][j - 1] = temp;
+                    break lbl;
+                }
+            }
+        }
+        Node new_nodeRIGHT = null;
+        lbl:
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (newarr[i][j] == 0 && (first != i || sec != j)) {
+                    new_nodeRIGHT = new Node(newarr, null, null, null, null);
+                    if (!list.contains(new_nodeRIGHT.data)) {
+                        list.add(new_nodeRIGHT.data);
+                        root.right = new_nodeRIGHT;
+                        print(new_nodeRIGHT.data);
+                        System.out.println("right");
+                    }
+
+                    if (goal_reached(new_nodeRIGHT.data)) {
+                        System.out.println("goal reached");
+                        long endtime = System.currentTimeMillis();
+                        System.out.println("time taken to reach the goal is:  " + (endtime - starttime) + "ms");
+                        System.exit(0);
+                    }
+                    child.add(new_nodeRIGHT);
+                    dfs.push(new_nodeRIGHT);
+                    break lbl;
+                }
+            }
+        }
+
+        return new_nodeRIGHT;
+    }
+
+    public static void print(int grid[][]) {
+        for (int i = 0; i < 3; i++) {
+            System.out.println();
+            for (int j = 0; j < 3; j++) {
+                System.out.print(grid[i][j] + "\t");
+            }
+        }
+        System.out.println();
+        System.out.println("----------------------------------------");
+    }
+
+    public Node move_up(int[][] grid) {
+        int first = 0;
+        int sec = 0;
+        int[][] newarr = new int[3][3];
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (grid[i][j] == 0) {
+                    first = i;
+                    sec = j;
+                }
+                newarr[i][j] = grid[i][j];
+            }
+        }
+        lbl:
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (newarr[i][j] == 0) {
+                    int temp = newarr[i][j];
+                    newarr[i][j] = newarr[i + 1][j];
+                    newarr[i + 1][j] = temp;
+                    break lbl;
+                }
+            }
+        }
+        Node new_nodeUP = null;
+        lbl:
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (newarr[i][j] == 0 && (first != i || sec != j)) {
+                    new_nodeUP = new Node(newarr, null, null, null, null);
+                    if (!list.contains(new_nodeUP.data)) {
+                        list.add(new_nodeUP.data);
+                        root.up = new_nodeUP;
+                        print(new_nodeUP.data);
+                        System.out.println("up");
+                    }
+
+                    if (goal_reached(new_nodeUP.data)) {
+                        System.out.println("goal reached");
+                        long endtime = System.currentTimeMillis();
+                        System.out.println("time taken to reach the goal is:  " + (endtime - starttime) + "ms");
+                        System.exit(0);
+                    }
+                    child.add(new_nodeUP);
+                    dfs.push(new_nodeUP);
+                    break lbl;
+                }
+            }
+        }
+        return new_nodeUP;
+    }
+
+    public void DFS(Node root) {
+        List<int[][]> next = new ArrayList();
+        Stack stack = new Stack();
+        stack.push(root);
+        next.add(root.data);
+        Node currentnode = null;
+        Node nextroot = null;
+        while (stack.size() > 0) {
+            currentnode = (Node) stack.pop();
+            print(currentnode.data);
+            System.out.println("root");
+            move_down(currentnode.data);
+            move_Right(currentnode.data);
+            move_Left(currentnode.data);
+            move_up(currentnode.data);
+
+            for (int i = 0; i < dfs.size(); i++) {
+                int count1 = 0;
+                for (int j = 0; j < next.size(); j++) {
+                    if (!testData(dfs.get(i).data, next.get(j))) {
+                        count1++;
+                    }
+                }
+                if (count1 == next.size()) {
+                    next.add(dfs.get(i).data);
+                    stack.push(dfs.get(i));
+                }
+            }
+            dfs.clear();
+        }
+    }
+
+    public Boolean testData(int[][] array1, int[][] array2) {
+        int count = 0;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (array1[i][j] == array2[i][j]) {
+                    count++;
+                }
+            }
+        }
+        if (count == 9) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public void BFS(Node root) {
+        Queue bfs = new LinkedList();
+        bfs.add(root);
+        Node currentnode = null;
+        while (bfs.size() > 0) {
+            currentnode = (Node) bfs.poll();
+            print(currentnode.data);
+            System.out.println("root");
+            move_up(currentnode.data);
+            move_down(currentnode.data);
+            move_Right(currentnode.data);
+            move_Left(currentnode.data);
+            bfs.add(child.poll());
+
+        }
+    }
+}
